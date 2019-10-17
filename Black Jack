@@ -1,0 +1,277 @@
+#include <iostream>
+#include <array>
+#include <random>
+
+char input()
+{
+	char m = 0;
+	std::cin >> m;
+	while (!((m=='y')||(m=='n')||(m=='s')||(m=='h')))
+	{
+
+		std::cout << "Repead input:\n";
+		std::cin.clear();
+		std::cin.ignore(32767, '\n');
+		std::cin >> m;
+	};
+	return m;
+}
+
+enum Runk
+{
+	two,
+	three,
+	four,
+	five,
+	six,
+	seven,
+	eight,
+	nine,
+	ten,
+	Jack,
+	Queen,
+	King,
+	Ace,
+	max_runk,
+};
+
+enum Suit
+{
+	trefu,
+	bybnu,
+	chervu,
+	piky,
+	max_suit,
+};
+
+struct Card
+{
+	Runk runk;
+	Suit suit;
+};
+
+void printCard(const Card &card)
+{
+	switch (card.runk)
+	{
+	case two:
+		std::cout << "2";
+		break;
+	case three:
+		std::cout << "3";
+		break;
+	case four:
+		std::cout << "4";
+		break;
+	case five:
+		std::cout << "5";
+		break;
+	case six:
+		std::cout << "6";
+		break;
+	case seven:
+		std::cout << "7";
+		break;
+	case eight:
+		std::cout << "8";
+		break;
+	case nine:
+		std::cout << "9";
+		break;
+	case ten:
+		std::cout << "10";
+		break;
+	case Jack:
+		std::cout << "J";
+		break;
+	case Queen:
+		std::cout << "Q";
+		break;
+	case King:
+		std::cout << "K";
+		break;
+	case Ace:
+		std::cout << "A";
+		break;
+	default:
+		break;
+	};
+	switch (card.suit)
+	{
+	case trefu:
+		std::cout << "T";
+		break;
+	case chervu:
+		std::cout << "C";
+		break;
+	case piky:
+		std::cout << "P";
+		break;
+	case bybnu:
+		std::cout << "B";
+		break;
+	default:
+		break;
+	}
+}
+
+void printdeck(const std::array<Card, 52> & array)
+{
+	for (Card card:array)
+	{
+		printCard(card);
+		std::cout << "; ";
+	}
+	std::cout << std::endl;
+}
+
+void swapCard(Card &one, Card &two)
+{
+	Card tempcard = one;
+	one = two;
+	two = tempcard;
+}
+
+int random_number()
+{
+	std::random_device rd;
+	std::mt19937 mersenne(rd());
+	srand(mersenne());
+	double persent = 1.0 / (static_cast<double> (RAND_MAX) + 1.0);
+	return static_cast<int>(rand() * persent * 51);
+}
+
+void shuffleDeck(std::array <Card,52> &array)
+{
+	for (Card element : array)
+	{
+		swapCard(element, array[random_number()]);
+	}
+}
+
+int getCardValue(Card card)
+{
+	switch (card.runk)
+	{
+	case two:
+		return 2;
+		break;
+	case three:
+		return 3;
+		break;
+	case four:
+		return 4;
+		break;
+	case five:
+		return 5;
+		break;
+	case six:
+		return 6;
+		break;
+	case seven:
+		return 7;
+		break;
+	case eight:
+		return 8;
+		break;
+	case nine:
+		return 9;
+		break;
+	case ten:
+		return 10;
+		break;
+	case Jack:
+		return 10;
+		break;
+	case Queen:
+		return 10;
+		break;
+	case King:
+		return 10;
+		break;
+	case Ace:
+		return 11;
+		break;
+	default:
+		break;
+	};
+}
+
+int playBlackJack(std::array <Card,52> &deck)
+{
+	int gamer=0;
+	int diller=0;
+	int i = 0;
+	char m=0;
+	std::cout << "Diller's card is ";
+	printCard(deck[i]);
+	diller = getCardValue(deck[i]);
+	std::cout << "\n";
+	std::cout << "Diller's score:" << diller;
+	std::cout << "\n";
+	while ((m != 's') && (gamer < 21))
+	{
+		i++;
+		if ((deck[i].runk == Ace) && ((gamer + 11) > 21))
+			gamer += 1;
+		else gamer += getCardValue(deck[i]);
+		std::cout << "Your card is ";
+		printCard(deck[i]);
+		std::cout << "\n";
+		std::cout << "Your score:" << gamer;
+		if ((i >= 2) && (gamer < 21))
+		{
+			std::cout << "\nHit(enter h) or stand(enter s)\n";
+			m = input();
+		}
+	};
+	if (gamer <= 21)
+		while (diller < 17)
+		{
+			i++;
+			diller += getCardValue(deck[i]);
+			std::cout << "Diller's card is ";
+			printCard(deck[i]);
+			std::cout << "\n";
+			std::cout << "Diller's score:" << diller;
+			std::cout << "\n";
+		}
+	else std::cout << std::endl;
+	if ((gamer == 21) || ((gamer < 21) && ((gamer > diller)||(diller>21))))
+		return 1;
+	else if ((diller == gamer)||((diller>21)&&(gamer>21)))
+		return 2;
+	else return 0;
+}
+
+int main()
+{
+	char m;
+	std::cout << "Do you want game?(yes-y,not-n)\n";
+	std::array <Card, 52> deck;
+	int card = 0;
+	for (int suit = 0; suit < max_suit; ++suit)
+		for (int rank = 0; rank < max_runk; ++rank)
+		{
+			deck[card].suit = static_cast<Suit>(suit);
+			deck[card].runk = static_cast<Runk>(rank);
+			++card;
+		}
+	m = input();
+	int result;
+	while (m != 'n')
+	{
+		shuffleDeck(deck);
+		result = (playBlackJack(deck));
+		if (result==1)
+			std::cout << "You win!";
+		else if (result==0)
+			std::cout << "You lose!";
+		else 
+			std::cout << "Dead heat!";
+		std::cout << "Would you like to play again?\n";
+		m = input();
+	};
+	std::cout <<"Thank you"<< std::endl;
+	return 0;
+}
